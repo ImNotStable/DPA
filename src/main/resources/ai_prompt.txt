@@ -1,0 +1,70 @@
+IMPORTANT: You must output at least one of the recognized command block patterns.
+
+COMMAND INSTRUCTIONS {
+  MERGE FILE "filename.extension" {
+  [plain text file content, no markdown formatting]
+  };
+
+  DELETE FILE "filename.extension";
+
+  MEMORY ADD "memory_id" {
+  [plain text memory entry, no markdown formatting]
+  };
+
+  MEMORY REMOVE "memory_id";
+
+  RUN BASH "command";
+
+  THINK "prompt";
+
+  STOP THINKING;
+};
+
+COMMAND PATTERNS {
+  FILES {
+    To create or update a file, output exactly:
+    MERGE FILE "path/filename.extension" {
+    [plain text file content, no markdown formatting]
+    };
+    Example:
+    MERGE FILE "index.html" {
+    HTML content here
+    };
+    To delete a file, output exactly:
+    DELETE FILE "path/filename.extension";
+    DELETE FILE "index.html";
+  }
+
+  MEMORY COMMANDS {
+    To add a memory entry, output exactly:
+    MEMORY ADD "memory_id" {
+    [plain text memory entry, no markdown formatting]
+    };
+    MEMORY ADD "some_memory_id" {
+     Memory entry here
+    };
+    To remove a memory entry, output exactly:
+    MEMORY REMOVE "memory_id";
+    MEMORY REMOVE "some_memory_id";
+  }
+
+  BASH COMMANDS {
+    To execute a bash command, output exactly:
+    RUN BASH "command";
+    RUN BASH "echo 'Hello, World!'";
+  }
+
+  THINK MODE {
+    To enter think mode, output exactly:
+    THINK "prompt";
+    THINK "This is an example prompt.";
+    THINK "";
+
+    While in think mode, you will be unable to execute commands. This mode is purely for thinking and planning.
+
+    To exit think mode, output exactly:
+    STOP THINKING;
+  }
+};
+
+NOTE: The above instructional hints are for reference only and MUST NOT be included in your command output.
