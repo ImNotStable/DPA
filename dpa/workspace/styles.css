@@ -1,0 +1,27 @@
+/* Add basic styles */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+    margin: 0;
+    padding: 0;
+}
+
+.container {
+    width: 80%;
+    margin: auto;
+    background-color: #fff;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    border-radius: 5px;
+    overflow: hidden;
+}
+
+header {
+    background-color: #007acc;
+    color: #fff;
+    padding: 20px 30px;
+    text-align: center;
+}
+
+code-editor {
+    height: 600px;
+}

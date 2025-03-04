@@ -1,158 +1,54 @@
 package me.jeremiah;
 
 import lombok.Getter;
+import me.jeremiah.components.CommandComponent;
+import me.jeremiah.components.MemoryComponent;
+import me.jeremiah.components.PromptGeneratorComponent;
+import me.jeremiah.components.WorkspaceComponent;
+import me.jeremiah.util.AIModel;
+import me.jeremiah.util.AIPrompt;
 
-import javax.swing.*;
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 
 @Getter
 public class AutonomousAI {
 
   private final AIModel model;
   private final UserInterface ui;
-  private final CommandDispatcher commandDispatcher;
-  private final MemoryController memoryController;
 
-  private final File initialPromptFile = new File("./src/main/resources/ai_prompt.txt");
-  private final File goalsFile = new File("./src/main/resources/goals.txt");
-  private final File aiMemoryFile = new File("./src/main/resources/AI_MEMORY.csv");
-
-  private final File dataFolder = new File("P:/Conversational AI/data/");
-
-  private String initialPrompt;
-  private String goals;
+  private final MemoryComponent memoryComponent;
+  private final WorkspaceComponent workspaceComponent;
+  private final CommandComponent commandComponent;
+  private final PromptGeneratorComponent promptGeneratorComponent;
 
   public AutonomousAI() {
-    dataFolder.mkdirs();
-
-    model = new AIModel("codellama:7b");//new AIModel("qwen2.5-coder:7b");
+    model = new AIModel("qwen2.5-coder:7b");
     ui = new UserInterface();
-    memoryController = new MemoryController(aiMemoryFile);
-    commandDispatcher = new CommandDispatcher(this);
+    memoryComponent = new MemoryComponent();
+    workspaceComponent = new WorkspaceComponent();
+    commandComponent = new CommandComponent(this);
+    promptGeneratorComponent = new PromptGeneratorComponent(this);
 
-    Thread conversationThread = new Thread(this::converse);
+    Thread conversationThread = new Thread(this::startConversation);
     conversationThread.start();
   }
 
-  private void appendConvText(String text) {
-    SwingUtilities.invokeLater(() -> ui.appendConversationText(text + "\n"));
-  }
-
-  private String readFile(File file) {
-    try {
-      return Files.readString(file.toPath());
-    } catch (IOException e) {
-      return "";
-    }
-  }
-
-  private String getProjectState() {
-    List<File> files = getFiles(dataFolder);
-
-    Map<String, String> fileContents = new LinkedHashMap<>();
-
-    for (File file : files) {
-      if (file.isDirectory())
-        continue;
-      try {
-        fileContents.put(file.getName(), Files.readString(file.toPath()));
-      } catch (IOException e) {
-        e.printStackTrace();
-      }
-    }
-
-    StringBuilder sb = new StringBuilder();
-
-    for (Map.Entry<String, String> entry : fileContents.entrySet()) {
-      sb.append(entry.getKey())
-        .append("{\n")
-        .append(entry.getValue())
-        .append("\n}");
-    }
-
-    return sb.toString();
-  }
-
-  private List<File> getFiles(File dir) {
-    List<File> files = new ArrayList<>();
-
-    if (!dir.exists())
-      return files;
-
-    File[] fileList = dir.listFiles();
-
-    if (fileList == null)
-      return files;
-
-    for (File file : fileList) {
-      files.add(file);
-      if (file.isDirectory())
-        files.addAll(getFiles(file));
-    }
-
-    return files;
-  }
-
-  private void converse() {
-    String progressLog = "";
+  private void startConversation() {
     int roundNumber = 1;
     while (true) {
       ui.setTitleText("Autonomous AI - Round " + roundNumber);
-      initialPrompt = readFile(initialPromptFile);
-      goals = readFile(goalsFile);
 
-      SwingUtilities.invokeLater(() -> ui.setGoalsText(goals));
+      AIPrompt prompt = promptGeneratorComponent.generatePrompt();
 
-      String memoryContent = memoryController.getMemoryDisplay();
-      String aiFilesStr = getProjectState();
+      String response = model.runModel(prompt);
+      ui.appendConversationText("AI: \n" + response);
 
-      StringBuilder combinedPrompt = new StringBuilder(initialPrompt);
-      combinedPrompt
-        .append("\n\n")
-        .append(progressLog)
-        .append("\n\n");
-
-      if (!goals.isEmpty()) {
-        combinedPrompt
-          .append("These goals are here to guide your actions, please follow them {\n")
-          .append(goals)
-          .append("\n};\n");
-      }
-      if (!memoryContent.isEmpty()) {
-        combinedPrompt
-          .append("Your Memory {\n")
-          .append(memoryContent)
-          .append("\n};\n");
-      }
-      if (!aiFilesStr.isEmpty()) {
-        combinedPrompt
-          .append("Here is the current project state {\n")
-          .append(aiFilesStr)
-          .append("\n};\n");
-      }
-
-      if (progressLog.length() > 4000)
-        progressLog = "[Summary of previous rounds]\n" + progressLog.substring(progressLog.length() - 2000);
-
-      String response = model.runModel(combinedPrompt.toString());
-      appendConvText("AI: \n" + response);
-
-      List<String> commandOutput = commandDispatcher.checkForCommands(response);
-
+      commandComponent.checkForCommands(response);
+      List<String> commandOutput = commandComponent.getOutputCache();
       commandOutput.forEach(System.out::println);
 
-      //System.out.println("--------------------------------");
-      //System.out.println(combinedPrompt);
-      //System.out.println("--------------------------------");
-
-      progressLog += "\n" + response + "\n" + String.join("\n", commandOutput);
-      roundNumber++;
+      promptGeneratorComponent.addHistory(response, commandOutput);
+      System.out.printf("Successfully completed round %d\n", roundNumber++);
     }
   }
 

@@ -1,0 +1,52 @@
+COMMAND BLOCKS {
+  MERGE FILE "filename.extension" {
+  [plain text file content, no markdown formatting]
+  };
+
+  DELETE FILE "filename.extension";
+
+  MEMORY ADD "memory_id" {
+  memory_value
+  };
+
+  MEMORY REMOVE "memory_id";
+
+  RUN BASH "command";
+};
+
+COMMAND EXAMPLES {
+  FILES {
+    MERGE FILE "path/filename.extension" {
+    [plain text file content, no markdown formatting]
+    };
+    Example:
+    MERGE FILE "index.html" {
+    HTML content here
+    };
+
+    DELETE FILE "path/filename.extension";
+    DELETE FILE "index.html";
+  };
+
+  MEMORY COMMANDS {
+    MEMORY ADD "memory_id" {
+    [plain text memory entry, no markdown formatting]
+    };
+    MEMORY ADD "some_memory_id" {
+     Memory entry here
+    };
+
+    MEMORY REMOVE "memory_id";
+    MEMORY REMOVE "some_memory_id";
+  };
+
+  BASH COMMANDS {
+    RUN BASH "command";
+    RUN BASH "echo 'Hello, World!'";
+  };
+};
+
+NOTE {
+  The above instructional hints are for reference only and MUST NOT be included in your command output.
+  DO NOT FORGET THE SEMICOLON AT THE END OF EACH COMMAND.
+};

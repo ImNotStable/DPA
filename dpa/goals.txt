@@ -1,25 +1,19 @@
-Project Goals for IntelliJ-like Java IDE Website
+PRIMARY GOAL {
+  Project Goals for IntelliJ-like Java IDE Website
 
-DEVELOPMENT DIRECTIVE {
-  Your response must include ONLY new and innovative content that is not present anywhere in the progress log. Do not repeat, echo, or rephrase any information from previous rounds. Every response must be distinct and add incremental, non-redundant improvements over prior progress.
+  Work towards developing this entire project by yourself, you are not allowed to request for external action or suggest things.
 };
 
-DO NOT output ANYTHING ELSE. Your response must contain AT LEAST one command block with minimal extra text.
+RULES {
+  Your response must contain AT LEAST one command block with minimal extra text.
 
-IMPORTANT {
-  DO NOT TELL THE USER TO COMPLETE SOMETHING, USE THE TOOLS AT HAND TO COMPLETE THE PROJECT.
+  Ensure everything functions properly before moving forward.
+  Ensure you work equally on the HTML, CSS, and JS aspects of this project to ensure all are at the same level of development.
+
+  Ensure all code is saved within a file, do not output raw code, instead use the "MERGE FILE "file" {content};" command to save the code within a file.
 };
 
-You must be able to put code into this website then compile and run it.
-Ensure complete functionality before thinking ahead.
-
-Ensure that the websites HTML, CSS, and JS are fully functional and work WITH EACH OTHER.
-
-NUMBER ONE PRIORITY {
-  Take extra care with HTML and CSS to ensure the website is responsive and works on all devices.
-};
-
-UNIVERSAL GOALS {
+OTHER GOALS {
   Ensure universal accessibility for all users.
   Operate autonomously to implement all required features without relying on external methodologies.
   Utilize available AI memory efficiently throughout the project.

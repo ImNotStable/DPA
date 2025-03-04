@@ -1,6 +1,6 @@
 plugins {
     id 'java'
-    id "com.gradleup.shadow" version "9.0.0-beta8"
+    id 'com.gradleup.shadow' version '9.0.0-beta8'
 }
 
 group = 'me.jeremiah'
@@ -14,7 +14,7 @@ dependencies {
     implementation 'org.projectlombok:lombok:1.18.36'
     annotationProcessor 'org.projectlombok:lombok:1.18.36'
 
-    implementation 'io.github.ollama4j:ollama4j:1.0.93'
+    implementation 'com.google.code.gson:gson:2.12.1'
 }
 
 assemble {

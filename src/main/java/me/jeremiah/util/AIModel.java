@@ -1,4 +1,4 @@
-package me.jeremiah;
+package me.jeremiah.util;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -14,14 +14,14 @@ public class AIModel {
     this.model = model;
   }
 
-  public String runModel(String prompt) {
+  public String runModel(AIPrompt prompt) {
     ProcessBuilder pb = new ProcessBuilder("ollama", "run", model);
     pb.redirectErrorStream(true);
     StringBuilder output = new StringBuilder();
     try {
       Process process = pb.start();
       try (BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(process.getOutputStream()))) {
-        writer.write(prompt);
+        writer.write(prompt.toString());
         writer.flush();
       }
       try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
