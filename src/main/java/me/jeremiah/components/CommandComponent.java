@@ -1,5 +1,6 @@
 package me.jeremiah.components;
 
+import lombok.SneakyThrows;
 import me.jeremiah.AutonomousAI;
 
 import java.io.BufferedReader;
@@ -9,15 +10,16 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
+import java.util.regex.MatchResult;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class CommandComponent {
 
-  private static final Pattern MERGE_FILE_PATTERN = Pattern.compile("^MERGE\\sFILE\\s\"((?:[\\w\\-_]+/)*)([a-zA-Z0-9\\s_\\\\.\\-():]+)\"\\s\\{\\s?([\\s\\S]+?)\\s?};");
-  private static final Pattern DELETE_FILE_PATTERN = Pattern.compile("DELETE\\sFILE\\s\"((?:[\\w\\-_]+[\\\\/])*)([a-zA-Z0-9\\s_\\\\.\\-():]+)\";");
+  private static final Pattern MERGE_FILE_PATTERN = Pattern.compile("MERGE\\sFILE\\s\"([a-zA-Z0-9\\s_\\\\.\\-():]+(?:/[a-zA-Z0-9\\s_\\\\.\\-():]+)*)\"\\s\\{\\n?([\\s\\S]+?)\\n?};");
+  private static final Pattern DELETE_FILE_PATTERN = Pattern.compile("DELETE\\sFILE\\s\"([a-zA-Z0-9\\s_\\\\.\\-():]+(?:/[a-zA-Z0-9\\s_\\\\.\\-():]+)*)\"\\s*;");
 
-  private static final Pattern MEMORY_ADD_PATTERN = Pattern.compile("^MEMORY\\sADD\\s\"([a-zA-Z0-9\\s_\\\\.\\-():]+)\"\\s\\{\\s?([\\s\\S]+?)\\s?};");
+  private static final Pattern MEMORY_ADD_PATTERN = Pattern.compile("MEMORY\\sADD\\s\"([a-zA-Z0-9\\s_\\\\.\\-():]+)\"\\s\\{\\n?([\\s\\S]+?)\\n?};");
   private static final Pattern MEMORY_REMOVE_PATTERN = Pattern.compile("MEMORY\\s+REMOVE\\s+\"([^\"]+)\";");
 
   private static final Pattern RUN_BASH_PATTERN = Pattern.compile("RUN\\s+BASH\\s+\"([^\"]+)\";");
@@ -25,7 +27,7 @@ public class CommandComponent {
   private final MemoryComponent memoryComponent;
   private final WorkspaceComponent workspaceComponent;
 
-  private List<String> commandOutputCache = new ArrayList<>();
+  private final List<String> commandOutputCache = new ArrayList<>();
 
   public CommandComponent(AutonomousAI autonomousAI) {
     this.memoryComponent = autonomousAI.getMemoryComponent();
@@ -40,48 +42,45 @@ public class CommandComponent {
     runCommand(RUN_BASH_PATTERN, response, this::runBash);
   }
 
-  private void runCommand(Pattern pattern, String text, Consumer<Matcher> action) {
+  private void runCommand(Pattern pattern, String text, Consumer<MatchResult> action) {
     Matcher createFileMatcher = pattern.matcher(text);
-    while (createFileMatcher.find())
-      action.accept(createFileMatcher);
+    createFileMatcher.results().forEach(action);
   }
 
-  private void mergeFile(Matcher matcher) {
-    String path = matcher.group(1);
-    String fileName = matcher.group(2);
-    String content = matcher.group(3);
-    File targetFile = workspaceComponent.getRelativeFile(path + fileName);
-    System.out.println("Attempting to merge file: " + targetFile.getAbsolutePath());
+  @SneakyThrows
+  private void mergeFile(MatchResult matcher) {
+    String filePath = matcher.group(1);
+    String content = matcher.group(2);
+    File targetFile = workspaceComponent.getRelativeFile(filePath);
     if (workspaceComponent.mergeFile(targetFile, content))
-      cacheOutput("MERGED FILE \"" + path + fileName + "\" {\n" + content + "\n};");
+      cacheOutput("MERGED FILE \"" + filePath + "\" {\n" + content + "\n};");
     else
-      cacheOutput("FAILED TO MERGE FILE \"" + path + fileName + "\";");
+      cacheOutput("FAILED TO MERGE FILE \"" + filePath + "\";");
   }
 
-  private void deleteFile(Matcher matcher) {
-    String path = matcher.group(1);
-    String fileName = matcher.group(2);
-    File targetFile = workspaceComponent.getRelativeFile(path + fileName);
+  private void deleteFile(MatchResult matcher) {
+    String filePath = matcher.group(1);
+    File targetFile = workspaceComponent.getRelativeFile(filePath);
     if (workspaceComponent.deleteFile(targetFile))
-      cacheOutput("DELETED FILE \"" + path + fileName + "\";");
+      cacheOutput("DELETED FILE \"" + filePath + "\";");
     else
-      cacheOutput("FAILED TO DELETE FILE \"" + path + fileName + "\";");
+      cacheOutput("FAILED TO DELETE FILE \"" + filePath + "\";");
   }
 
-  private void addMemory(Matcher matcher) {
+  private void addMemory(MatchResult matcher) {
     String key = matcher.group(1);
     String value = matcher.group(2);
     memoryComponent.addMemory(key, value);
     cacheOutput("ADD MEMORY \"" + key + "\" {\n" + value + "\n};");
   }
 
-  private void removeMemory(Matcher matcher) {
+  private void removeMemory(MatchResult matcher) {
     String key = matcher.group(1);
     memoryComponent.removeMemory(key);
     cacheOutput("REMOVED MEMORY \"" + key + "\";");
   }
 
-  private void runBash(Matcher matcher) {
+  private void runBash(MatchResult matcher) {
     String command = matcher.group(1);
 
     try {
@@ -97,7 +96,7 @@ public class CommandComponent {
 
       process.waitFor(60, TimeUnit.SECONDS);
       if (process.exitValue() != 0)
-        cacheOutput("ERROR EXECUTING COMMAND;");
+        cacheOutput("ERROR EXECUTING COMMAND \"%s\";".formatted(process.exitValue()));
       else
         cacheOutput("BASH COMMAND OUTPUT {\n" + output.toString().trim() + "\n};");
     } catch (Exception e) {
@@ -107,6 +106,7 @@ public class CommandComponent {
   }
 
   private void cacheOutput(String output) {
+    System.out.println(output);
     commandOutputCache.add(output);
   }
 

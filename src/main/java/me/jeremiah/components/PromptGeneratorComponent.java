@@ -2,10 +2,10 @@ package me.jeremiah.components;
 
 import me.jeremiah.AutonomousAI;
 import me.jeremiah.util.AIPrompt;
+import me.jeremiah.util.Files;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,13 +21,14 @@ public class PromptGeneratorComponent {
   private final MemoryComponent memoryComponent;
   private final WorkspaceComponent workspaceComponent;
 
+  @SuppressWarnings("ResultOfMethodCallIgnored")
   public PromptGeneratorComponent(AutonomousAI ai) {
     if (!goalsFile.exists() || !formattingFile.exists() || !warningsFile.exists() || !contextFile.exists()) {
       try {
-        Files.createFile(goalsFile.toPath());
-        Files.createFile(formattingFile.toPath());
-        Files.createFile(warningsFile.toPath());
-        Files.createFile(contextFile.toPath());
+        goalsFile.createNewFile();
+        formattingFile.createNewFile();
+        warningsFile.createNewFile();
+        contextFile.createNewFile();
       } catch (IOException e) {
         e.printStackTrace();
       }
@@ -40,15 +41,19 @@ public class PromptGeneratorComponent {
     if (history.size() >= 20)
       history = history.subList(history.size() - 10, history.size());
 
-    String goals = readFile(goalsFile);
-    String formatting = readFile(formattingFile);
-    String warnings = readFile(warningsFile);
-    String baseContext = readFile(contextFile);
+    String goals = Files.readFileContents(goalsFile);
+    String formatting = Files.readFileContents(formattingFile);
+    String warnings = Files.readFileContents(warningsFile);
+    String baseContext = Files.readFileContents(contextFile);
     String memoryContent = memoryComponent.getMemoryDisplay();
     String workspaceContent = workspaceComponent.getWorkspaceState();
 
     AIPrompt.Builder promptBuilder = new AIPrompt.Builder();
+    if (!history.isEmpty())
+      goals += "\n\n" + history.getLast();
     promptBuilder.setGoals(goals);
+    if (!history.isEmpty())
+      promptBuilder.setHistory(String.join("\n", history.subList(0, history.size() - 1)));
     promptBuilder.setFormatting(formatting);
     promptBuilder.setWarnings(warnings);
 
@@ -64,14 +69,6 @@ public class PromptGeneratorComponent {
 
   public void addHistory(String response, List<String> commandOutput) {
     history.add(response + "\n\nCOMMAND OUTPUT {\n" + String.join("\n", commandOutput) + "\n};");
-  }
-
-  private String readFile(File file) {
-    try {
-      return Files.readString(file.toPath());
-    } catch (IOException e) {
-      return "";
-    }
   }
 
 }

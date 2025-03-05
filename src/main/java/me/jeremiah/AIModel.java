@@ -1,4 +1,6 @@
-package me.jeremiah.util;
+package me.jeremiah;
+
+import me.jeremiah.util.AIPrompt;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;

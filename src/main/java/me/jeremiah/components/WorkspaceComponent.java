@@ -1,12 +1,16 @@
 package me.jeremiah.components;
 
+import lombok.SneakyThrows;
+import me.jeremiah.util.Files;
+
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class WorkspaceComponent {
 
@@ -23,12 +27,13 @@ public class WorkspaceComponent {
 
   public boolean mergeFile(File file, String content) {
     try {
-      System.out.println("Attempting to merge file: " + file.getAbsolutePath());
-      Files.writeString(file.toPath(), content);
-      if (!file.exists())
-        System.out.println("Failed to create: " + file.getAbsolutePath());
-      else
-        System.out.println("File merged: " + file.getAbsolutePath());
+      if (!file.exists()) {
+        file.getParentFile().mkdirs();
+        file.createNewFile();
+      }
+      FileWriter writer = new FileWriter(file);
+      writer.write(content);
+      writer.close();
       return true;
     } catch (IOException e) {
       e.printStackTrace();
@@ -40,31 +45,16 @@ public class WorkspaceComponent {
     return file.delete();
   }
 
+  @SneakyThrows
   public String getWorkspaceState() {
-    List<File> files = getFiles(workspaceDir);
-
     Map<String, String> fileContents = new LinkedHashMap<>();
 
-    for (File file : files) {
-      if (file.isDirectory())
-        continue;
-      try {
-        fileContents.put(file.getName(), Files.readString(file.toPath()));
-      } catch (IOException e) {
-        e.printStackTrace();
-      }
-    }
+    for (File file : getFiles(workspaceDir))
+      fileContents.put(file.getName(), Files.readFileContents(file));
 
-    StringBuilder sb = new StringBuilder();
-
-    for (Map.Entry<String, String> entry : fileContents.entrySet()) {
-      sb.append(entry.getKey())
-        .append("{\n")
-        .append(entry.getValue())
-        .append("\n}");
-    }
-
-    return sb.toString();
+    return fileContents.entrySet().stream()
+      .map(entry -> "FILE \"%s\" {\n%s\n};\n".formatted(entry.getKey(), entry.getValue()))
+      .collect(Collectors.joining("\n"));
   }
 
   private List<File> getFiles(File dir) {
@@ -79,9 +69,10 @@ public class WorkspaceComponent {
       return files;
 
     for (File file : fileList) {
-      files.add(file);
       if (file.isDirectory())
         files.addAll(getFiles(file));
+      else
+        files.add(file);
     }
 
     return files;

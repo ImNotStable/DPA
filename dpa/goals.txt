@@ -1,16 +1,11 @@
 PRIMARY GOAL {
-  Project Goals for IntelliJ-like Java IDE Website
-
-  Work towards developing this entire project by yourself, you are not allowed to request for external action or suggest things.
+  Create a website that is an IntelliJ like environment with a function code editor where you can compile and run Java code.
 };
 
 RULES {
-  Your response must contain AT LEAST one command block with minimal extra text.
-
-  Ensure everything functions properly before moving forward.
-  Ensure you work equally on the HTML, CSS, and JS aspects of this project to ensure all are at the same level of development.
-
-  Ensure all code is saved within a file, do not output raw code, instead use the "MERGE FILE "file" {content};" command to save the code within a file.
+  You must ensure all code is saved within a file, do not output raw code, instead use the "MERGE FILE "file" {content};" command to save the code within a file.
+  You must ensure everything functions properly before moving forward.
+  You must ensure you work equally on the HTML, CSS, and JS aspects of this project to ensure all are at the same level of development.
 };
 
 OTHER GOALS {

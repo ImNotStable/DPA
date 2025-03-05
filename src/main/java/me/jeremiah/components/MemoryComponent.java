@@ -12,6 +12,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class MemoryComponent {
 
@@ -29,8 +30,8 @@ public class MemoryComponent {
 
   @SneakyThrows
   private void loadMemory() {
-    if (!aiMemoryFile.exists()) {
-      aiMemoryFile.createNewFile();
+    if (!aiMemoryFile.exists() && aiMemoryFile.createNewFile()) {
+      saveMemory();
       return;
     }
     JsonObject root = gson.fromJson(new FileReader(aiMemoryFile), JsonObject.class);
@@ -61,10 +62,10 @@ public class MemoryComponent {
   public String getMemoryDisplay() {
     if (outputCache != null)
       return outputCache;
-    StringBuilder sb = new StringBuilder();
-    for (Map.Entry<String, String> entry : memoryMap.entrySet())
-      sb.append("MEMORY \"%s\" {\n%s\n};\n".formatted(entry.getKey(), entry.getValue()));
-    return outputCache = sb.toString();
+    outputCache = memoryMap.entrySet().stream()
+      .map(entry -> "MEMORY \"%s\" {\n%s\n};".formatted(entry.getKey(), entry.getValue()))
+      .collect(Collectors.joining("\n"));
+    return outputCache;
   }
 
 }

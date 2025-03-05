@@ -5,7 +5,6 @@ import me.jeremiah.components.CommandComponent;
 import me.jeremiah.components.MemoryComponent;
 import me.jeremiah.components.PromptGeneratorComponent;
 import me.jeremiah.components.WorkspaceComponent;
-import me.jeremiah.util.AIModel;
 import me.jeremiah.util.AIPrompt;
 
 import java.util.List;
