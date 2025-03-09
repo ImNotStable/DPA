@@ -106,7 +106,6 @@ public class CommandComponent {
   }
 
   private void cacheOutput(String output) {
-    System.out.println(output);
     commandOutputCache.add(output);
   }
 

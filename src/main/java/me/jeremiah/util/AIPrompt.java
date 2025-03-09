@@ -1,5 +1,6 @@
 package me.jeremiah.util;
 
+import com.google.gson.JsonObject;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -19,6 +20,7 @@ public class AIPrompt {
 
   @Override
   public String toString() {
+    new JsonObject();
     StringBuilder builder = new StringBuilder();
     builder.append("GOALS {\n").append(goal).append("\n};\n");
     if (history != null)

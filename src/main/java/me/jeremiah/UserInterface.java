@@ -274,7 +274,7 @@ public class UserInterface extends JFrame {
       if (!conversationArea.getText().isEmpty()) {
         conversationArea.append("\n");
       }
-      conversationArea.append(text + "\n");
+      conversationArea.append("AI:\n" + text + "\n");
       conversationArea.setCaretPosition(conversationArea.getDocument().getLength());
     });
   }

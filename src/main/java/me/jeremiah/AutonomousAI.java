@@ -10,7 +10,7 @@ import me.jeremiah.util.AIPrompt;
 import java.util.List;
 
 @Getter
-public class AutonomousAI {
+public class AutonomousAI implements Runnable {
 
   private final AIModel model;
   private final UserInterface ui;
@@ -20,6 +20,9 @@ public class AutonomousAI {
   private final CommandComponent commandComponent;
   private final PromptGeneratorComponent promptGeneratorComponent;
 
+  private boolean running = true;
+  private int round = 0;
+
   public AutonomousAI() {
     model = new AIModel("qwen2.5-coder:7b");
     ui = new UserInterface();
@@ -27,28 +30,29 @@ public class AutonomousAI {
     workspaceComponent = new WorkspaceComponent();
     commandComponent = new CommandComponent(this);
     promptGeneratorComponent = new PromptGeneratorComponent(this);
-
-    Thread conversationThread = new Thread(this::startConversation);
-    conversationThread.start();
   }
 
-  private void startConversation() {
-    int roundNumber = 1;
-    while (true) {
-      ui.setTitleText("Autonomous AI - Round " + roundNumber);
+  @Override
+  public void run() {
+    while (running) {
+      ui.setTitleText("Autonomous AI (Round " + round + ")");
 
       AIPrompt prompt = promptGeneratorComponent.generatePrompt();
 
       String response = model.runModel(prompt);
-      ui.appendConversationText("AI: \n" + response);
+      ui.appendConversationText(response);
 
       commandComponent.checkForCommands(response);
       List<String> commandOutput = commandComponent.getOutputCache();
       commandOutput.forEach(System.out::println);
 
       promptGeneratorComponent.addHistory(response, commandOutput);
-      System.out.printf("Successfully completed round %d\n", roundNumber++);
+      round++;
     }
+  }
+
+  public void stop() {
+    running = false;
   }
 
 }

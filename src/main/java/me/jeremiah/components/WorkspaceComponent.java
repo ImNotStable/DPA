@@ -57,25 +57,29 @@ public class WorkspaceComponent {
       .collect(Collectors.joining("\n"));
   }
 
-  private List<File> getFiles(File dir) {
+  public List<File> getFiles(File dir) {
     List<File> files = new ArrayList<>();
+    collectFiles(dir, files);
+    return files;
+  }
 
-    if (!dir.exists())
-      return files;
-
-    File[] fileList = dir.listFiles();
-
-    if (fileList == null)
-      return files;
-
-    for (File file : fileList) {
-      if (file.isDirectory())
-        files.addAll(getFiles(file));
-      else
-        files.add(file);
+  private void collectFiles(File dir, List<File> files) {
+    if (!dir.exists()) {
+      return;
     }
 
-    return files;
+    File[] fileList = dir.listFiles();
+    if (fileList == null) {
+      return;
+    }
+
+    for (File file : fileList) {
+      if (file.isDirectory()) {
+        collectFiles(file, files);
+      } else {
+        files.add(file);
+      }
+    }
   }
 
 }

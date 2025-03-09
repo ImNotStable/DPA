@@ -9,7 +9,6 @@ import lombok.SneakyThrows;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
-import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -19,12 +18,11 @@ public class MemoryComponent {
   private static final Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
   private final File aiMemoryFile = new File("./dpa/AI_MEMORY.json");
-  private final LinkedHashMap<String, String> memoryMap;
+  private final LinkedHashMap<String, String> memoryMap = new LinkedHashMap<>();
 
   private String outputCache = null;
 
   public MemoryComponent() {
-    this.memoryMap = new LinkedHashMap<>();
     loadMemory();
   }
 
@@ -46,17 +44,17 @@ public class MemoryComponent {
   }
 
   public void removeMemory(String key) {
-    memoryMap.remove(key);
+    if (memoryMap.remove(key) == null)
+      return;
     saveMemory();
     outputCache = null;
   }
 
+  @SneakyThrows
   private void saveMemory() {
-    try (FileWriter writer = new FileWriter(aiMemoryFile)) {
-      gson.toJson(memoryMap, writer);
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
+    FileWriter writer = new FileWriter(aiMemoryFile);
+    gson.toJson(memoryMap, writer);
+    writer.close();
   }
 
   public String getMemoryDisplay() {

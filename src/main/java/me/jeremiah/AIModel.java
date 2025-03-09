@@ -22,17 +22,18 @@ public class AIModel {
     StringBuilder output = new StringBuilder();
     try {
       Process process = pb.start();
-      try (BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(process.getOutputStream()))) {
-        writer.write(prompt.toString());
-        writer.flush();
-      }
-      try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
-        String line;
-        while ((line = reader.readLine()) != null) {
-          String cleanLine = clean(line);
-          output.append(cleanLine).append("\n");
-        }
-      }
+
+      BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(process.getOutputStream()));
+      writer.write(prompt.toString());
+      writer.flush();
+      writer.close();
+
+      BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+      String line;
+      while ((line = reader.readLine()) != null)
+        output.append(line).append("\n");
+      reader.close();
+
       process.waitFor(600, TimeUnit.SECONDS);
       if (process.exitValue() != 0)
         return "Error running " + model;
@@ -43,12 +44,13 @@ public class AIModel {
   }
 
   private static String clean(String str) {
-    str = str.replaceAll("\\u001B\\[[0-?]*[ -/]*[@-~]", "");
-    str = str.replaceAll("[\\u2800-\\u28FF]+", "");
-    str = str.replaceAll("\\r", "");
-    str = str.replaceAll("\\u0008", "");
-    str = str.replaceAll("```[A-z]*", "");
-    return str;
+    return str
+      .replaceAll("\\u001B\\[[0-?]*[ -/]*[@-~]", "")
+      .replaceAll("[\\u2800-\\u28FF]+", "")
+      .replaceAll("\\r", "")
+      .replaceAll("\\u0008", "")
+      .replaceAll("```[A-Za-z]*([\\s\\S]*?)```", "$1")
+      .replaceAll("\\*\\*(.*)\\*\\*", "$1");
   }
 
 }
