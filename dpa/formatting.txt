@@ -1,6 +1,6 @@
-COMMAND BLOCKS {
+COMMAND FORMATTING GUIDELINES {
   MERGE FILE "filename.extension" {
-  [plain text file content, no markdown formatting]
+  file_content
   };
 
   DELETE FILE "filename.extension";
@@ -14,10 +14,10 @@ COMMAND BLOCKS {
   RUN BASH "command";
 };
 
-COMMAND EXAMPLES {
+COMMAND FORMATTING EXAMPLES {
   FILES {
     MERGE FILE "path/filename.extension" {
-    [plain text file content, no markdown formatting]
+    File content here
     };
     Example:
     MERGE FILE "index.html" {
@@ -30,10 +30,10 @@ COMMAND EXAMPLES {
 
   MEMORY COMMANDS {
     MEMORY ADD "memory_id" {
-    [plain text memory entry, no markdown formatting]
+    Memory entry here
     };
     MEMORY ADD "some_memory_id" {
-     Memory entry here
+    Memory entry here
     };
 
     MEMORY REMOVE "memory_id";
@@ -44,9 +44,4 @@ COMMAND EXAMPLES {
     RUN BASH "command";
     RUN BASH "echo 'Hello, World!'";
   };
-};
-
-NOTE {
-  The above instructional hints are for reference only and MUST NOT be included in your command output.
-  DO NOT FORGET THE SEMICOLON AT THE END OF EACH COMMAND.
 };

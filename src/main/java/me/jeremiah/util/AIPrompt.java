@@ -1,11 +1,9 @@
 package me.jeremiah.util;
 
 import com.google.gson.JsonObject;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
-@Getter
 public class AIPrompt {
 
   private final String goal, history, formatting, warnings, context;
@@ -22,15 +20,15 @@ public class AIPrompt {
   public String toString() {
     new JsonObject();
     StringBuilder builder = new StringBuilder();
-    builder.append("GOALS {\n").append(goal).append("\n};\n");
+    builder.append("GOALS {\n%s\n};\n".formatted(goal));
     if (history != null)
-      builder.append("HISTORY {\n").append(history).append("\n};\n");
+      builder.append("HISTORY {\n%s\n};\n".formatted(history));
     if (formatting != null)
-      builder.append("FORMATTING {\n").append(formatting).append("\n};\n");
+      builder.append("FORMATTING {\n%s\n};\n".formatted(formatting));
     if (warnings != null)
-      builder.append("WARNINGS {\n").append(warnings).append("\n};\n");
+      builder.append("WARNINGS {\n%s\n};\n".formatted(warnings));
     if (context != null)
-      builder.append("CONTEXT DUMP {\n").append(context).append("\n};\n");
+      builder.append("CONTEXT DUMP {\n%s\n};\n".formatted(context));
     return builder.toString();
   }
 

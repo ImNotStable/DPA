@@ -2,10 +2,10 @@ package me.jeremiah;
 
 public class Main {
 
-  private static final Thread autonomousAI = new Thread(new AutonomousAI());
+  private static final Thread ai = new Thread(new AutonomousAI());
 
   public static void main(String[] args) {
-    autonomousAI.start();
+    ai.start();
   }
 
 }

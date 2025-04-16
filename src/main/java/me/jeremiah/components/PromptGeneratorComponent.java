@@ -5,7 +5,6 @@ import me.jeremiah.util.AIPrompt;
 import me.jeremiah.util.Files;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,18 +20,11 @@ public class PromptGeneratorComponent {
   private final MemoryComponent memoryComponent;
   private final WorkspaceComponent workspaceComponent;
 
-  @SuppressWarnings("ResultOfMethodCallIgnored")
   public PromptGeneratorComponent(AutonomousAI ai) {
-    if (!goalsFile.exists() || !formattingFile.exists() || !warningsFile.exists() || !contextFile.exists()) {
-      try {
-        goalsFile.createNewFile();
-        formattingFile.createNewFile();
-        warningsFile.createNewFile();
-        contextFile.createNewFile();
-      } catch (IOException e) {
-        e.printStackTrace();
-      }
-    }
+    Files.createFile(goalsFile);
+    Files.createFile(formattingFile);
+    Files.createFile(warningsFile);
+    Files.createFile(contextFile);
     memoryComponent = ai.getMemoryComponent();
     workspaceComponent = ai.getWorkspaceComponent();
   }
@@ -41,10 +33,10 @@ public class PromptGeneratorComponent {
     if (history.size() >= 20)
       history = history.subList(history.size() - 10, history.size());
 
-    String goals = Files.readFileContents(goalsFile);
-    String formatting = Files.readFileContents(formattingFile);
-    String warnings = Files.readFileContents(warningsFile);
-    String baseContext = Files.readFileContents(contextFile);
+    String goals = Files.getContents(goalsFile);
+    String formatting = Files.getContents(formattingFile);
+    String warnings = Files.getContents(warningsFile);
+    String baseContext = Files.getContents(contextFile);
     String memoryContent = memoryComponent.getMemoryDisplay();
     String workspaceContent = workspaceComponent.getWorkspaceState();
 

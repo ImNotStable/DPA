@@ -21,7 +21,7 @@ public class AutonomousAI implements Runnable {
   private final PromptGeneratorComponent promptGeneratorComponent;
 
   private boolean running = true;
-  private int round = 0;
+  private int round = 1;
 
   public AutonomousAI() {
     model = new AIModel("qwen2.5-coder:7b");
@@ -40,11 +40,11 @@ public class AutonomousAI implements Runnable {
       AIPrompt prompt = promptGeneratorComponent.generatePrompt();
 
       String response = model.runModel(prompt);
-      ui.appendConversationText(response);
+      ui.appendArtificialThoughts(response);
 
       commandComponent.checkForCommands(response);
       List<String> commandOutput = commandComponent.getOutputCache();
-      commandOutput.forEach(System.out::println);
+      ui.appendCommandLog(String.join("\n", commandOutput));
 
       promptGeneratorComponent.addHistory(response, commandOutput);
       round++;

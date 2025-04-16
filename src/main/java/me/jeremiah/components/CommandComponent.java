@@ -2,6 +2,8 @@ package me.jeremiah.components;
 
 import lombok.SneakyThrows;
 import me.jeremiah.AutonomousAI;
+import me.jeremiah.util.Exceptions;
+import me.jeremiah.util.Formatting;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -16,22 +18,22 @@ import java.util.regex.Pattern;
 
 public class CommandComponent {
 
-  private static final Pattern MERGE_FILE_PATTERN = Pattern.compile("MERGE\\sFILE\\s\"([a-zA-Z0-9\\s_\\\\.\\-():]+(?:/[a-zA-Z0-9\\s_\\\\.\\-():]+)*)\"\\s\\{\\n?([\\s\\S]+?)\\n?};");
+  private static final Pattern MERGE_FILE_PATTERN = Pattern.compile("MERGE\\sFILE\\s\"([a-zA-Z0-9\\s_\\\\.\\-():]+(?:/[a-zA-Z0-9\\s_\\\\.\\-():]+)*)\"\\s\\{\\n?([\\s\\S]+?)\\n};");
   private static final Pattern DELETE_FILE_PATTERN = Pattern.compile("DELETE\\sFILE\\s\"([a-zA-Z0-9\\s_\\\\.\\-():]+(?:/[a-zA-Z0-9\\s_\\\\.\\-():]+)*)\"\\s*;");
 
-  private static final Pattern MEMORY_ADD_PATTERN = Pattern.compile("MEMORY\\sADD\\s\"([a-zA-Z0-9\\s_\\\\.\\-():]+)\"\\s\\{\\n?([\\s\\S]+?)\\n?};");
+  private static final Pattern MEMORY_ADD_PATTERN = Pattern.compile("MEMORY\\sADD\\s\"([a-zA-Z0-9\\s_\\\\.\\-():]+)\"\\s\\{\\n?([\\s\\S]+?)\\n};");
   private static final Pattern MEMORY_REMOVE_PATTERN = Pattern.compile("MEMORY\\s+REMOVE\\s+\"([^\"]+)\";");
 
   private static final Pattern RUN_BASH_PATTERN = Pattern.compile("RUN\\s+BASH\\s+\"([^\"]+)\";");
 
-  private final MemoryComponent memoryComponent;
   private final WorkspaceComponent workspaceComponent;
+  private final MemoryComponent memoryComponent;
 
   private final List<String> commandOutputCache = new ArrayList<>();
 
   public CommandComponent(AutonomousAI autonomousAI) {
-    this.memoryComponent = autonomousAI.getMemoryComponent();
     this.workspaceComponent = autonomousAI.getWorkspaceComponent();
+    this.memoryComponent = autonomousAI.getMemoryComponent();
   }
 
   public void checkForCommands(String response) {
@@ -43,8 +45,8 @@ public class CommandComponent {
   }
 
   private void runCommand(Pattern pattern, String text, Consumer<MatchResult> action) {
-    Matcher createFileMatcher = pattern.matcher(text);
-    createFileMatcher.results().forEach(action);
+    Matcher matcher = pattern.matcher(text);
+    matcher.results().forEach(action);
   }
 
   @SneakyThrows
@@ -53,31 +55,31 @@ public class CommandComponent {
     String content = matcher.group(2);
     File targetFile = workspaceComponent.getRelativeFile(filePath);
     if (workspaceComponent.mergeFile(targetFile, content))
-      cacheOutput("MERGED FILE \"" + filePath + "\" {\n" + content + "\n};");
+      cacheOutput("MERGED FILE", filePath, content);
     else
-      cacheOutput("FAILED TO MERGE FILE \"" + filePath + "\";");
+      cacheOutput("FAILED TO MERGE FILE", filePath);
   }
 
   private void deleteFile(MatchResult matcher) {
     String filePath = matcher.group(1);
     File targetFile = workspaceComponent.getRelativeFile(filePath);
     if (workspaceComponent.deleteFile(targetFile))
-      cacheOutput("DELETED FILE \"" + filePath + "\";");
+      cacheOutput("DELETED FILE", filePath);
     else
-      cacheOutput("FAILED TO DELETE FILE \"" + filePath + "\";");
+      cacheOutput("FAILED TO DELETE FILE", filePath);
   }
 
   private void addMemory(MatchResult matcher) {
     String key = matcher.group(1);
     String value = matcher.group(2);
     memoryComponent.addMemory(key, value);
-    cacheOutput("ADD MEMORY \"" + key + "\" {\n" + value + "\n};");
+    cacheOutput("ADDED MEMORY", key);
   }
 
   private void removeMemory(MatchResult matcher) {
     String key = matcher.group(1);
     memoryComponent.removeMemory(key);
-    cacheOutput("REMOVED MEMORY \"" + key + "\";");
+    cacheOutput("REMOVED MEMORY", key);
   }
 
   private void runBash(MatchResult matcher) {
@@ -96,13 +98,20 @@ public class CommandComponent {
 
       process.waitFor(60, TimeUnit.SECONDS);
       if (process.exitValue() != 0)
-        cacheOutput("ERROR EXECUTING COMMAND \"%s\";".formatted(process.exitValue()));
+        cacheOutput("ERROR EXECUTING BASH COMMAND", String.valueOf(process.exitValue()), null);
       else
-        cacheOutput("BASH COMMAND OUTPUT {\n" + output.toString().trim() + "\n};");
+        cacheOutput("BASH COMMAND OUTPUT", null, output.toString().trim());
     } catch (Exception e) {
-      e.printStackTrace();
-      cacheOutput("ERROR EXECUTING COMMAND {\n" + e.getMessage() + "\n};");
+      cacheOutput("ERROR EXECUTING BASH COMMAND", null, Exceptions.getPrintable(e));
     }
+  }
+
+  private void cacheOutput(String title, String main) {
+    cacheOutput(Formatting.format(title, main, null));
+  }
+
+  private void cacheOutput(String title, String main, String content) {
+    cacheOutput(Formatting.format(title, main, content));
   }
 
   private void cacheOutput(String output) {

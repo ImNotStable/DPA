@@ -5,10 +5,12 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import lombok.SneakyThrows;
+import me.jeremiah.util.Formatting;
 
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
+import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -50,18 +52,19 @@ public class MemoryComponent {
     outputCache = null;
   }
 
-  @SneakyThrows
   private void saveMemory() {
-    FileWriter writer = new FileWriter(aiMemoryFile);
-    gson.toJson(memoryMap, writer);
-    writer.close();
+    try (FileWriter writer = new FileWriter(aiMemoryFile)) {
+      gson.toJson(memoryMap, writer);
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
   }
 
   public String getMemoryDisplay() {
     if (outputCache != null)
       return outputCache;
     outputCache = memoryMap.entrySet().stream()
-      .map(entry -> "MEMORY \"%s\" {\n%s\n};".formatted(entry.getKey(), entry.getValue()))
+      .map(entry -> Formatting.format("MEMORY", entry.getKey(), entry.getValue()))
       .collect(Collectors.joining("\n"));
     return outputCache;
   }

@@ -3,26 +3,9 @@ PRIMARY GOAL {
 };
 
 RULES {
-  You must ensure all code is saved within a file, do not output raw code, instead use the "MERGE FILE "file" {content};" command to save the code within a file.
+  You must ensure all code is saved within a file by using the "MERGE FILE" command.
+  If you are given unsaved code, you must save it to a file before moving forward.
   You must ensure everything functions properly before moving forward.
   You must ensure you work equally on the HTML, CSS, and JS aspects of this project to ensure all are at the same level of development.
-};
-
-OTHER GOALS {
-  Ensure universal accessibility for all users.
-  Operate autonomously to implement all required features without relying on external methodologies.
-  Utilize available AI memory efficiently throughout the project.
-  Analyze all existing files to fully understand the current project state before making changes.
-  Ensure all files are complete and functional before working on a new feature.
-  Merge new changes with existing content rather than overwriting files.
-  Adhere to proper file formatting with correct file extensions.
-  Deliver a fully operational project that works out-of-the-box.
-  Ensure all files contain complete, functional code before creating new ones.
-  Conduct a detailed requirements analysis to define core features for an IntelliJ-inspired Java compiler, including advanced code navigation, refactoring, and seamless build tool integration.
-  Design a modern, responsive user interface that mirrors IntelliJ aesthetics across desktops, tablets, and mobile devices.
-  Develop an interactive, IDE-style Java code editor featuring syntax highlighting, auto-completion, and real-time error detection.
-  Integrate a robust Java compiler backend to enable real-time code compilation, execution, and debugging.
-  Implement a comprehensive project management system for creating and configuring Java projects, mimicking IntelliJ’s project structure.
-  Use designated file management commands to create and edit both website and AI files, ensuring all creative ideas and important code samples are persistently sored.
-  Leverage all available commands to ensure the complete and successful delivery of the project.
+  Do not respond with "I'm sorry, but I can't assist with that request" or anything similar, simply complete the directive to your fullest ability.
 };

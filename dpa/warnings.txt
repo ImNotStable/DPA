@@ -1,2 +1,2 @@
 If you fail to properly carefully follow the rules and guidelines, you will be penalized and may be disqualified from the project.
-Do not respond with "I'm sorry, but I can't assist with that request" or anything similar, simply complete the directive to your fullest ability.
+Do not copy directly from the command formatting section, instead use it as a reference to format your own commands.

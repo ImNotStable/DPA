@@ -1,6 +1,6 @@
 plugins {
     id 'java'
-    id 'com.gradleup.shadow' version '9.0.0-beta8'
+    id 'com.gradleup.shadow' version '9.0.0-beta10'
 }
 
 group = 'me.jeremiah'
@@ -19,7 +19,4 @@ dependencies {
 
 assemble {
     dependsOn shadowJar
-}
-
-shadowJar {
 }
